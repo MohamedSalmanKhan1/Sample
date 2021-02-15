@@ -1,83 +1,55 @@
 package com.salman.RestAPIStudentProject.service;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.salman.RestAPIStudentProject.model.Student;
+import com.salman.RestAPIStudentProject.repository.StudentRepository;
 
-@Service("studentService")
-
+@Service
 public class StudentServiceImpl implements StudentService {
-	
+
 	private static final AtomicLong counter = new AtomicLong();
-	
-	private static List<Student> students;
-	
-	static{
-		students = populateDummyStudents();
+	@Autowired
+	private StudentRepository studentrepository;
+
+	@Override
+	public List<Student> findAllStudents() {
+		return (List<Student>) studentrepository.findAll();
+
 	}
 
-	public List<Student> findAllStudents() {
-		return students;
-	}
-	
+	@Override
 	public Student findById(long id) {
-		for(Student student : students){
-			if(student.getId() == id){
-				return student;
-			}
-		}
-		return null;
+
+		return studentrepository.findOne(id);
+
 	}
-	
-	public Student findByName(String name) {
-		for(Student Student : students){
-			if(Student.getName().equalsIgnoreCase(name)){
-				return Student;
-			}
-		}
-		return null;
-	}
-	
+
+	@Override
 	public void saveStudent(Student Student) {
 		Student.setId(counter.incrementAndGet());
-		students.add(Student);
+		studentrepository.save(Student);
 	}
 
+	@Override
 	public void updateStudent(Student Student) {
-		int index = students.indexOf(Student);
-		students.set(index, Student);
+
+		studentrepository.save(Student);
 	}
 
+	@Override
 	public void deleteStudentById(long id) {
-		
-		for (Iterator<Student> iterator = students.iterator(); iterator.hasNext(); ) {
-		    Student student = iterator.next();
-		    if (student.getId() == id) {
-		        iterator.remove();
-		    }
-		}
+
+		studentrepository.delete(findById(id));
 	}
 
-	public boolean isStudentExist(Student student) {
-		return findByName(student.getName())!=null;
-	}
-	
-	public void deleteAllStudents(){
-		students.clear();
+	@Override
+	public void deleteAllStudents() {
+		studentrepository.deleteAll();
 	}
 
-	private static List<Student> populateDummyStudents(){
-		List<Student> students = new ArrayList<Student>();
-		students.add(new Student(counter.incrementAndGet(),"David",30, 70000));
-		students.add(new Student(counter.incrementAndGet(),"John",40, 50000));
-		students.add(new Student(counter.incrementAndGet(),"Kani",45, 30000));
-		students.add(new Student(counter.incrementAndGet(),"Todd",50, 40000));
-		return students;
-	}
-	
 }
